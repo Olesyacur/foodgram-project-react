@@ -11,12 +11,6 @@ class Ingredient(models.Model):
         verbose_name='Название ингредиента',
         max_length=200,
         help_text='Введите название ингредиента')
-    sum = models.DecimalField(
-        verbose_name='Количество ингредиента',
-        max_digits=10,
-        decimal_places=2,
-        help_text='Введите количество ингредиента'
-    )
     dimension = models.CharField(
         verbose_name='Единица измерения',
         max_length=200,
@@ -74,7 +68,7 @@ class Recipe(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор',
-        related_name='recipes',
+        #related_name='recipes',
         help_text='Автор'
     )
     title = models.CharField(
@@ -96,7 +90,7 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Ингредиенты',
-        related_name='recipes',
+        #related_name='recipes',
         help_text='Выберите ингредиенты'
     )
     pub_date = models.DateTimeField(
@@ -106,7 +100,7 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        related_name='recipes',
+        #related_name='recipes',
         help_text='Выберите теги'
     )
     cooking_time = models.PositiveSmallIntegerField(
@@ -122,3 +116,33 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.text[:15]
+
+
+class RecipeIngredient(models.Model):
+    """Ингредиенты рецепта."""
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        verbose_name='Рецепт',
+        #related_name='recipe_ingredients',
+        help_text='Рецепт'
+    )
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Ингредиент',
+        #related_name='recipe_ingredients',
+        help_text='Ингредиент'
+    )
+    sum = models.PositiveSmallIntegerField(
+        verbose_name='Количество ингредиента',
+        help_text='Введите количество ингредиента'
+    )
+
+    class Meta:
+        ordering = ('recipe',)
+        verbose_name = 'Ингредиент рецепта'
+        verbose_name_plural = 'Ингредиенты рецепта'
+
+    def __str__(self):
+        return self.recipe.title
