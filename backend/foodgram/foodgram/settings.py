@@ -32,13 +32,19 @@ AUTH_USER_MODEL = 'users.User'
 
 INSTALLED_APPS = [
     'django.contrib.auth',
-    'users.apps.UsersConfig',
-    'recipes.apps.RecipesConfig',
     'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'users.apps.UsersConfig',
+    'recipes.apps.RecipesConfig',
+    'api.apps.ApiConfig',
+    'rest_framework',
+    "rest_framework.authtoken",
+    'django_filters',
+    "djoser",
+
 ]
 
 MIDDLEWARE = [
