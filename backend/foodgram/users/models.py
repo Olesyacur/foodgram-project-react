@@ -9,12 +9,6 @@ class User(AbstractUser):
         Администратор.
     """
 
-    #USER = 'user'
-    #ADMIN = 'admin'
-    #ROLE_CHOICES = (
-        #(USER, 'Аутентифицированный пользователь'),
-        #(ADMIN, 'Администратор'),
-    #)
     first_name = models.CharField(
         verbose_name='Имя пользователя',
         max_length=150,
@@ -36,21 +30,17 @@ class User(AbstractUser):
         unique=True,
         max_length=254
     )
-    #role = models.CharField(
-        #verbose_name='Роль',
-        #max_length=50,
-        #choices=ROLE_CHOICES,
-        #default=USER
-    #)
+    password = models.CharField(
+        verbose_name='Пароль',
+        max_length=128,
+        null=False,
+    )
     
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ['username']
 
-    #@property
-    #def is_admin(self):
-        #return self.role == self.ADMIN
 
     def __str__(self):
         return self.username

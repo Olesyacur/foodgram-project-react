@@ -7,27 +7,27 @@ User = get_user_model()
 class Ingredient(models.Model):
     """Ингредиенты."""
 
-    title = models.CharField(
+    name = models.CharField(
         verbose_name='Название ингредиента',
         max_length=200,
         help_text='Введите название ингредиента')
-    dimension = models.CharField(
+    measurement_unit = models.CharField(
         verbose_name='Единица измерения',
         max_length=200,
         help_text='Введите единицу измерения')
 
     class Meta:
-        ordering = ('title',)
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Tag(models.Model):
     """Теги рецептов."""
-    title = models.CharField(
+    name = models.CharField(
         verbose_name='Название тега',
         max_length=200,
         unique=True,
@@ -44,12 +44,12 @@ class Tag(models.Model):
         help_text='Введите слаг')
 
     class Meta:
-        ordering = ('title',)
+        ordering = ('name',)
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
     def __str__(self):
-        return self.title
+        return self.name
 
 
 class Recipe(models.Model):
@@ -60,7 +60,7 @@ class Recipe(models.Model):
     description - описание рецепта
     pub_date - дата публикации
     author - привязка к автору рецепта
-    title - название рецепта
+    name - название рецепта
     image - картинка рецепта
     cooking_time - время приготовления
     tags - привязка к тегам
@@ -73,7 +73,7 @@ class Recipe(models.Model):
         related_name='recipes',
         help_text='Автор'
     )
-    title = models.CharField(
+    name = models.CharField(
         verbose_name='Название рецепта',
         max_length=200,
         help_text='Введите название рецепта'
@@ -84,7 +84,7 @@ class Recipe(models.Model):
         blank=True,
         help_text='Загрузите картинку'
     )
-    description = models.TextField(
+    text = models.TextField(
         verbose_name='Описание приготовления',
         help_text='Введите описание рецепта'
     )
@@ -148,3 +148,46 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient} - {self.sum}'
+
+class Favorite(models.Model):
+    """Избранное."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorites'
+    )
+
+    class Meta:
+        ordering = ('user',)
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные'
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe}'
+
+
+class ShoppingCart(models.Model):
+    """Список покупок."""
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorite_shops'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorite_shops'
+    )
+
+    class Meta:
+        ordering = ('user',)
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+
+    def __str__(self):
+        return f'{self.user} - {self.recipe}'
