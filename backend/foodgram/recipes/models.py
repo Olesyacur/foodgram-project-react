@@ -30,10 +30,12 @@ class Tag(models.Model):
     title = models.CharField(
         verbose_name='Название тега',
         max_length=200,
+        unique=True,
         help_text='Введите название тега')
     color = models.CharField(
         verbose_name='Цвет тега',
         max_length=50,
+        unique=True,
         help_text='Введите цвет тега')
     slug = models.SlugField(
         verbose_name='Слаг',
@@ -68,7 +70,7 @@ class Recipe(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name='Автор',
-        #related_name='recipes',
+        related_name='recipes',
         help_text='Автор'
     )
     title = models.CharField(
@@ -89,8 +91,10 @@ class Recipe(models.Model):
     ingredients = models.ManyToManyField(
         Ingredient,
         through='RecipeIngredient',
+        through_fields=('recipe', 'ingredient'),
         verbose_name='Ингредиенты',
-        #related_name='recipes',
+        related_name='recipes',
+        blank=True,
         help_text='Выберите ингредиенты'
     )
     pub_date = models.DateTimeField(
@@ -100,7 +104,7 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        #related_name='recipes',
+        related_name='recipes',
         help_text='Выберите теги'
     )
     cooking_time = models.PositiveSmallIntegerField(
@@ -122,17 +126,15 @@ class RecipeIngredient(models.Model):
     """Ингредиенты рецепта."""
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-        #related_name='recipe_ingredients',
-        help_text='Рецепт'
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.CASCADE,
-        verbose_name='Ингредиент',
-        #related_name='recipe_ingredients',
-        help_text='Ингредиент'
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
     )
     sum = models.PositiveSmallIntegerField(
         verbose_name='Количество ингредиента',
@@ -145,4 +147,4 @@ class RecipeIngredient(models.Model):
         verbose_name_plural = 'Ингредиенты рецепта'
 
     def __str__(self):
-        return self.recipe.title
+        return f'{self.recipe} - {self.ingredient} - {self.sum}'
