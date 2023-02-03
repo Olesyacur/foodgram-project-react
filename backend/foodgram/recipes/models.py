@@ -136,7 +136,7 @@ class RecipeIngredient(models.Model):
         blank=True,
         null=True
     )
-    sum = models.PositiveSmallIntegerField(
+    amount = models.PositiveSmallIntegerField(
         verbose_name='Количество ингредиента',
         help_text='Введите количество ингредиента'
     )

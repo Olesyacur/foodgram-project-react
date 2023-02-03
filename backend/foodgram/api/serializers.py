@@ -174,7 +174,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 RecipeIngredient(
                     recipe = self.instance,
                     ingredient = ingredient.pop('id'),
-                    sum = ingredient.pop('sum'),
+                    amount = ingredient.pop('amount'),
                 )
             )
         RecipeIngredient.objects.bulk_create(ingredient_list)
