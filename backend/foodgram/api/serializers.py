@@ -37,7 +37,7 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'first_name', 'last_name', 'recipes_count', 'recipes')
         read_only_fields = ('username', 'first_name', 'last_name', 'email')
     
-    def validate(self, attrs):
+    def validate(self, obj):
         user = self.context.get('request').user
         author_id = self.context.get('kwargs').get('pk')
         author = get_object_or_404(User, id=author_id)
