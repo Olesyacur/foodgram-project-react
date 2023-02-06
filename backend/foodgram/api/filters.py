@@ -17,15 +17,11 @@ class RecipeFilter(django_filters.FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all()
     )
-    is_favorited = django_filters.BooleanFilter(
-        field_name='favorite__user',
-        lookup_expr='isnull',
-        exclude=True
+    is_favorited = django_filters.NumberFilter(
+        method='filter_is_favorited',
     )
-    is_in_shopping_cart = django_filters.BooleanFilter(
-        field_name='shopping_cart__user',
-        lookup_expr='isnull',
-        exclude=True
+    is_in_shopping_cart = django_filters.NumberFilter(
+        method='filter_is_in_shopping_cart',
     )
 
     class Meta:

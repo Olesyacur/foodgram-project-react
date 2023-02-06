@@ -1,7 +1,8 @@
 from rest_framework import viewsets
 from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, SAFE_METHODS
 from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
@@ -10,13 +11,11 @@ from users.models import Follow, User
 from recipes.models import Recipe, Ingredient, Tag, Favorite, ShoppingCart, RecipeIngredient
 
 from .serializers import (
-    UserCreateSerializer,
     UserSerializer,
     FollowSerializer,
     IngredientSerializer,
     TagSerializer,
     RecipeSerializer,
-    RecipeIngredientSerializer,
     FavoriteSerializer,
     ShoppingCartSerializer,
     RecipeCreateSerializer
@@ -35,7 +34,7 @@ class UserViewSet(UserViewSet):
     @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
         """Подписка на автора"""
-        author = get_object_or_404(User, id=id)
+        author = get_object_or_404(User, pk=id)
         user = request.user
         
         if request.method == 'POST':
@@ -70,6 +69,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (IngredientFilter,)
     pagination_class = None
     filter_backends = (IngredientFilter,)
+    search_fields = ('^name', )
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
@@ -86,11 +86,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     quereset = Recipe.objects.all()
     serializer_class = RecipeCreateSerializer
     permission_classes = (IsAuthor,)
-    filter_backends = (RecipeFilter,)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = (RecipeFilter,)
     pagination_class = Pagination
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method in SAFE_METHODS:
             return RecipeSerializer
         return RecipeCreateSerializer
     

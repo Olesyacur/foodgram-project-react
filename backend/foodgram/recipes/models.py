@@ -147,7 +147,7 @@ class RecipeIngredient(models.Model):
         verbose_name_plural = 'Ингредиенты рецепта'
 
     def __str__(self):
-        return f'{self.recipe} - {self.ingredient} - {self.sum}'
+        return f'{self.recipe} - {self.ingredient} - {self.amount}'
 
 class Favorite(models.Model):
     """Избранное."""

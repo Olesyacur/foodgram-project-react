@@ -3,12 +3,9 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    """Пользователи проекта с ролями:
-        Аноним,
-        Аутентифицированный пользователь,
-        Администратор.
-    """
-
+    """Пользователи проекта."""
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     first_name = models.CharField(
         verbose_name='Имя пользователя',
         max_length=150,
