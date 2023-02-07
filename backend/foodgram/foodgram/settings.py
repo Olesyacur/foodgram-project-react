@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     'django_filters',
     "djoser",
+    'django_cleanup.apps.CleanupConfig',
 
 ]
 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
 
 User = get_user_model()
 
@@ -126,28 +127,35 @@ class RecipeIngredient(models.Model):
     """Ингредиенты рецепта."""
     recipe = models.ForeignKey(
         Recipe,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True
+        on_delete=models.CASCADE,
+        related_name='recipe_ingredients',
+        verbose_name='Рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True
+        on_delete=models.CASCADE,
+        related_name='recipe_ingredients',
+        verbose_name='Ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(
+            1,
+            'Количество ингредиента не должно быть меньше 1'
+        )],
         verbose_name='Количество ингредиента',
         help_text='Введите количество ингредиента'
     )
 
     class Meta:
-        ordering = ('recipe',)
+        ordering = ('-id',)
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
 
     def __str__(self):
-        return f'{self.recipe} - {self.ingredient} - {self.amount}'
+        return (
+            f'{self.ingredient.name} - {self.ingredient.measurement_unit}'
+            f'- {self.amount}'
+        )
 
 class Favorite(models.Model):
     """Избранное."""

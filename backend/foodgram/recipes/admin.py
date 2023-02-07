@@ -9,22 +9,24 @@ admin.site.unregister(Group)
 
 class RecipeIngredientAdmin(admin.TabularInline):
     model = RecipeIngredient
-    extra = 1
-
+    fields = ('ingredient', 'amount')
+    min_num = 1
+    extra = 0
+    
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-       'author', 'name', 'text' ,'ingredients', 'tags', 'cooking_time')
+       'author', 'name', 'text' ,'get_ingredients', 'get_tags', 'cooking_time')
     list_filter = ('tags',)
     search_fields = ('name',)
     inlines = (RecipeIngredientAdmin,)
 
     @admin.display(description='Теги')
-    def tags(self, obj):
+    def get_tags(self, obj):
         return ', '.join([tag.name for tag in obj.tags.all()])
 
     @admin.display(description='Ингредиенты')
-    def ingredients(self, obj):
+    def get_ingredients(self, obj):
         return ', '.join([
             ingredient.name for ingredient in obj.ingredients.all()])
 

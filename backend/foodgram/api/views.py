@@ -21,7 +21,7 @@ from .serializers import (
     RecipeCreateSerializer
 )
 from .filters import IngredientFilter, RecipeFilter
-from .permissions import IsAuthor
+from .permissions import IsAuthorOrAdminOrReadOnly
 from .pagination import Pagination
 
 
@@ -68,7 +68,6 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
     pagination_class = None
-    filter_backends = (IngredientFilter,)
     search_fields = ('^name', )
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
@@ -83,12 +82,19 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вывод рецептов"""
-    quereset = Recipe.objects.all()
+    queryset = Recipe.objects.all()
     serializer_class = RecipeCreateSerializer
-    permission_classes = (IsAuthor,)
+    # permission_classes = (IsAuthorOrAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = (RecipeFilter,)
+    filterset_class = RecipeFilter
     pagination_class = Pagination
+
+    def get_permissions(self):
+        if self.action in [
+            'favorite'
+        ]:
+            self.permission_classes = [IsAuthorOrAdminOrReadOnly]
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:

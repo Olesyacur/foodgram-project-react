@@ -15,3 +15,4 @@ djoser
 django-filter
 django-extra-fields
 Pillow
+django-cleanup
