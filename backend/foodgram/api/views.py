@@ -31,10 +31,15 @@ class UserViewSet(UserViewSet):
     serializer_class = UserSerializer
     pagination_class = Pagination
  
-    @action(detail=True, permission_classes=[IsAuthenticated])
-    def subscribe(self, request, id):
+    @action(
+        detail=True,
+        methods=['post', 'delete'],
+        permission_classes=[IsAuthenticated],
+        serializer_class=FollowSerializer,
+    )
+    def subscribe(self, request, **kwargs):
         """Подписка на автора"""
-        author_id = self.kwargs.get(id)
+        author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)
         user = self.request.user
         
@@ -45,12 +50,11 @@ class UserViewSet(UserViewSet):
             )
 
         if request.method == 'POST':
-            serializer = FollowSerializer(
-                author,
-                data=request.data,
+            subscribtion, _ = Follow.objects.get_or_create(user=user, author=author)
+            serializer = self.get_serializer(
+                subscribtion,
                 context={'request': request},
             )
-            Follow.objects.get_or_create(user=user, author=author)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         if request.method == 'DELETE':

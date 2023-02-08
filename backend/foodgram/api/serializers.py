@@ -40,7 +40,7 @@ class FollowSerializer(serializers.ModelSerializer):
     recipes = serializers.SerializerMethodField()
 
     class Meta:
-        model = User
+        model = Follow
         fields = (
             'id',
             'email',
@@ -174,7 +174,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             )
         return tags
  
-    def create_ingredients(recipe, ingredients):
+    def create_ingredients(self, recipe, ingredients):
         """Создание ингредиентов с учетом их количества по рецепту"""
         ingredient_new_list = []
         for ingredient_new in ingredients:
