@@ -31,12 +31,19 @@ class UserViewSet(UserViewSet):
     serializer_class = UserSerializer
     pagination_class = Pagination
  
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
+    @action(detail=True, permission_classes=[IsAuthenticated])
     def subscribe(self, request, id):
         """Подписка на автора"""
-        author = get_object_or_404(User, pk=id)
-        user = request.user
+        author_id = self.kwargs.get(id)
+        author = get_object_or_404(User, id=author_id)
+        user = self.request.user
         
+        if user == author:
+            return Response(
+                {'message': 'Нельзя подписаться на самого себя'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         if request.method == 'POST':
             serializer = FollowSerializer(
                 author,
@@ -51,6 +58,7 @@ class UserViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+    @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
         """Получение списка подписок"""
         user = request.user
