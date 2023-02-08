@@ -91,11 +91,11 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         write_only=True,
     )
     amount = serializers.IntegerField(write_only=True, min_value=1)
-    name = serializers.CharField(source='ingredient.name', read_only=True)
+    recipe = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'name', 'amount')
+        fields = ('id', 'amount', 'recipe')
         extra_kwargs = {'amount': {'min_value': None}}
 
 
@@ -147,10 +147,9 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
         many=True,
-        write_only=True,
     )
     author = UserSerializer(read_only=True)
-    ingredients = RecipeIngredientSerializer(many=True,)
+    ingredients = RecipeIngredientSerializer(many=True)
     image = Base64ImageField()
     cooking_time = serializers.IntegerField()
 
@@ -198,6 +197,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         recipe = Recipe.objects.create(
             author=request.user, **validated_data)
         recipe.tags.add(*tags)
+
         self.create_ingredients(recipe, ingredients)
         return recipe
 
@@ -219,10 +219,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         
         return instance
     
-    #def to_representation(self, instance):
-     #   """Получение рецепта"""
-      #  return RecipeSerializer(instance).data
-
+    def to_representation(self, instance):
+        """Получение рецепта"""
+        representation = super().to_representation(instance)
+        representation['ingredients'] = RecipeIngredientSerializer(
+            RecipeIngredient.objects.filter(recipe=instance).all(),
+            many=True
+        ).data
+        return representation
 
 class FavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор для избранного"""
