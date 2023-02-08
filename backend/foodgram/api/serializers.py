@@ -87,15 +87,15 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     """Сериализатор для ингредиентов рецепта"""
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
-        source='ingredient.id',
+        source='ingredient',
         write_only=True,
     )
+    amount = serializers.IntegerField(write_only=True, min_value=1)
     name = serializers.CharField(source='ingredient.name', read_only=True)
-    measurement_unit = serializers.CharField(source='ingredient.measurement_unit', read_only=True)
 
     class Meta:
         model = RecipeIngredient
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ('id', 'name', 'amount')
         extra_kwargs = {'amount': {'min_value': None}}
 
 
@@ -177,12 +177,14 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def create_ingredients(self, recipe, ingredients):
         """Создание ингредиентов с учетом их количества по рецепту"""
         ingredient_new_list = []
-        for ingredient_new in ingredients:
+        
+        for ingredient in ingredients:
             ingredient_new_list.append(
                 RecipeIngredient(
                     ingredient = Ingredient.objects.get(
-                        id=ingredient_new['id']),
-                    amount = ingredient_new['amount'],
+                        id=ingredient['ingredient'].id
+                    ),
+                    amount = ingredient['amount'],
                     recipe = recipe,
                 )
             )
@@ -191,7 +193,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Создание рецепта"""
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('recipe_ingredients')
+        ingredients = validated_data.pop('ingredients')
         request = self.context.get('request')
         recipe = Recipe.objects.create(
             author=request.user, **validated_data)

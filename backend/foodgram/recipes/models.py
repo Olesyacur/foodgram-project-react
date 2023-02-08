@@ -81,7 +81,7 @@ class Recipe(models.Model):
     )
     image = models.ImageField(
         verbose_name='Картинка',
-        upload_to='recipes/',
+        upload_to='recipes/images/',
         blank=True,
         help_text='Загрузите картинку'
     )
