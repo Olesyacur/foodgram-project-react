@@ -102,7 +102,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра рецептов"""
     tags = TagSerializer(many=True, read_only=True)
-    author = UserSerializer(read_only=True)
+    author = UserSerializer(read_only=True, many=False)
     ingredients = RecipeIngredientSerializer(many=True, source='recipe_ingredients', read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -153,9 +153,19 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
     cooking_time = serializers.IntegerField()
 
+
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'name', 'image', 'text', 'ingredients', 'tags', 'cooking_time')
+        fields = (
+            'id',
+            'author',
+            'name',
+            'image',
+            'text',
+            'ingredients',
+            'tags',
+            'cooking_time'
+        )
 
     def valid_ingredients(self, ingredients):
         """Проверка наличия ингредиентов"""
@@ -221,12 +231,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     
     def to_representation(self, instance):
         """Получение рецепта"""
-        representation = super().to_representation(instance)
-        representation['ingredients'] = RecipeIngredientSerializer(
-            RecipeIngredient.objects.filter(recipe=instance).all(),
-            many=True
+        return RecipeSerializer(
+            instance,
+            context={'request': self.context.get('request')},
         ).data
-        return representation
 
 class FavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор для избранного"""
@@ -257,7 +265,10 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Получение избранного"""
-        return FavoriteSerializer(instance).data
+        return FavoriteSerializer(
+            instance,
+            context={'request': self.context.get('request')}
+        ).data
 
 
 class ShoppingCartSerializer(serializers.ModelSerializer):
@@ -277,4 +288,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Получение списка покупок"""
-        return ShoppingCartSerializer(instance).data
+        return ShoppingCartSerializer(
+            instance,
+            context={'request': self.context.get('request')}
+        ).data
