@@ -113,27 +113,36 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
     
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
-    def favorite(self, request, id):
-        recipe = get_object_or_404(Recipe, id=id)
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk):
+        #recipe = get_object_or_404(Recipe, id=id)
         context = {'request': request}
         data = {
-            'recipe': recipe.id,
+            'recipe': pk,
             'user': request.user.id,
         }
         serializer = FavoriteSerializer(data=data, context=context)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-    def favorite_delete(self, request, id):
-            get_object_or_404(
-                Favorite,
-                user=request.user,
-                recipe = get_object_or_404(Recipe, id=id)
-            ).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
     
+    @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated])
+    @favorite.mapping.delete    
+    def favorite_delete(self, request, pk):
+        object = get_object_or_404(
+            Favorite,
+            user=request.user,
+            recipe = get_object_or_404(Recipe, id=pk)
+        )
+        if object.exist():
+            object.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'message': 'Нет такого рецепта в списке избранного'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+
     @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, id):
         """Добавление в список покупок"""

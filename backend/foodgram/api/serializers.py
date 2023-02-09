@@ -236,24 +236,26 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             context={'request': self.context.get('request')},
         ).data
 
+
+class RecipeFieldSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения полей рецепта"""
+    
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+
+
 class FavoriteSerializer(serializers.ModelSerializer):
     """Сериализатор для избранного"""
-    user = UserSerializer(read_only=True)
-    user_id = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        source='user',
-        write_only=True,
-    )
-    recipe = RecipeSerializer(read_only=True)
-    recipe_id = serializers.PrimaryKeyRelatedField(
-        queryset=Recipe.objects.all(),
-        source='recipe',
-        write_only=True,
-    )
 
     class Meta:
         model = Favorite
-        fields = ('id', 'user', 'recipe')
+        fields = ('user', 'recipe')
 
     def validate(self, data):
         """Проверка наличия рецепта в избранном"""
@@ -265,8 +267,8 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Получение избранного"""
-        return FavoriteSerializer(
-            instance,
+        return RecipeFieldSerializer(
+            instance.recipe,
             context={'request': self.context.get('request')}
         ).data
 
@@ -288,7 +290,7 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Получение списка покупок"""
-        return ShoppingCartSerializer(
-            instance,
+        return RecipeFieldSerializer(
+            instance.recipe,
             context={'request': self.context.get('request')}
         ).data
