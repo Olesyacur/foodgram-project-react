@@ -282,7 +282,14 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         """Проверка наличия рецепта в списке покупок"""
-        if ShoppingCart.objects.filter(user=data['user'], recipe=data['recipe']).exists():
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            raise serializers.ValidationError(
+                detail='Необходимо авторизоваться',
+            )
+        recipe = data['recipe']
+        if ShoppingCart.objects.filter(
+            user=request.user, recipe=recipe).exists():
             raise serializers.ValidationError(
                 detail='Рецепт уже добавлен в список покупок',
             )

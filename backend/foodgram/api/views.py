@@ -142,30 +142,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
-    def shopping_cart(self, request, id):
-        """Добавление в список покупок"""
-        recipe = get_object_or_404(Recipe, id=id)
-        user = self.request.user
-        
-        if request.method == 'POST':
-            serializer = ShoppingCartSerializer(
-                recipe,
-                data=request.data,
-                context={'request': request},
-            )
-            ShoppingCart.objects.get_or_create(user=user, recipe=recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
-        if request.method == 'DELETE':
-            get_object_or_404(ShoppingCart, user=user, recipe=recipe).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    
     def shopping_list(ingredients):
-        """Создание списка покупок"""
+        """Вывод списка покупок"""
         shop_list = {}
         for ingredient in ingredients:
             name = ingredient['ingredient__name']
@@ -182,11 +160,42 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         response['Content-Disposition'] = f'attachment; filename={result}'
         return response
-
+    
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         """Скачивание ингридиентов из списка покупок"""
         ingredients = RecipeIngredient.objects.filter(recipe__shopping_cart__user=request.user).values(
             'ingredient__name', 'ingredient__measurement_unit').annotate(amount=Sum('amount')).order_by()
         return self.shopping_list(ingredients)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def shopping_cart(self, request, pk):
+        """Добавление в список покупок"""
+        data = {'user': request.user.id, 'recipe': pk}
+        serializer = ShoppingCartSerializer(
+            data=data,
+            context={'request': request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], permission_classes=[IsAuthenticated])
+    @shopping_cart.mapping.delete
+    def shopping_cart_delete(self, request, pk):
+        object = get_object_or_404(
+            ShoppingCart,
+            user=request.user,
+            recipe = get_object_or_404(Recipe, id=pk)
+        )
+        if object.exist():
+            object.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'message': 'Нет такого рецепта с ингридиентами в списке покупок'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    
+
         
