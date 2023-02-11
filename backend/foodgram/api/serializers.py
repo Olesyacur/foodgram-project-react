@@ -102,6 +102,14 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount',  'name', 'measurement_unit')
 
 
+class IngredientFieldSerializer(serializers.ModelSerializer):
+    """Сериализатор для получения полей ингредиента при создании рецепта"""
+
+    class Meta:
+        model = RecipeIngredient
+        fields = ('id', 'amount')
+
+
 
 class RecipeSerializer(serializers.ModelSerializer):
     """Сериализатор для просмотра рецептов"""
@@ -268,14 +276,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
         if Favorite.objects.filter(user=data['user'], recipe=data['recipe']).exists():
             raise serializers.ValidationError(
                 detail='Рецепт уже добавлен в избранное',
-            )
-        return data
-
-    def validate_delete(self, data):
-        """Проверка наличия рецепта в избранном при удалении"""
-        if not Favorite.objects.filter(user=data['user'], recipe=data['recipe']).exists():
-            raise serializers.ValidationError(
-                detail='Рецепта нет в избранном',
             )
         return data
 

@@ -96,6 +96,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """Все действия с рецептами"""
     queryset = Recipe.objects.all()
+    #permission_classes = (IsAuthor,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = Pagination
@@ -128,7 +129,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED)
         
         if request.method == 'DELETE':
             get_object_or_404(
@@ -136,7 +138,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 recipe=recipe
             ).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT
+            )
 
     @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
@@ -162,27 +166,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=request.user,
                 recipe=recipe
             ).delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                status=status.HTTP_204_NO_CONTENT)
 
-    # def shopping_list(ingredients):
-    #     """Вывод списка покупок"""
-    #     shop_list = {}
-    #     for ingredient in ingredients:
-    #         name = ingredient['ingredient__name']
-    #         measurement_unit = ingredient['ingredient__measurement_unit']
-    #         amount = ingredient['amount']
-    #         shop_list[name] = {
-    #             'measurement_unit': measurement_unit,
-    #             'amount': amount
-    #         }
-    #     result = 'shop_list.txt'
-    #     response = HttpResponse(
-    #         shop_list,
-    #         content_type='text/plain'
-    #     )
-    #     response['Content-Disposition'] = f'attachment; filename={result}'
-    #     return response
-    
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         """Скачивание ингредиентов из списка покупок"""
@@ -207,7 +193,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         response['Content-Disposition'] = f'attachment; filename={result}'
         return response
-
-        # return self.shopping_list(ingredients)
-
-        
+   
