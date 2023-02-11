@@ -133,15 +133,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 serializer.data, status=status.HTTP_201_CREATED)
         
         if request.method == 'DELETE':
-            get_object_or_404(
-                Favorite,
-                user=request.user,
-                recipe=recipe
-            ).delete()
+            obj = Favorite.objects.filter(user=request.user, recipe=recipe)
+            if obj.exists():
+                obj.delete()
+                return Response(
+                    status=status.HTTP_204_NO_CONTENT
+                )
             return Response(
-                status=status.HTTP_204_NO_CONTENT
+                {'message': 'Рецепт не найден в избранном'},
+                status=status.HTTP_404_NOT_FOUND
             )
-
+            
     @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
         """Добавление рецепта в список покупок или удаление из него"""
@@ -161,14 +163,17 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         if request.method == 'DELETE':
-            get_object_or_404(
-                ShoppingCart,
-                user=request.user,
-                recipe=recipe
-            ).delete()
+            obj = ShoppingCart.objects.filter(user=request.user, recipe=recipe)
+            if obj.exists():
+                obj.delete()
+                return Response(
+                    status=status.HTTP_204_NO_CONTENT
+                )
             return Response(
-                status=status.HTTP_204_NO_CONTENT)
-
+                {'message': 'Рецепт не найден в списке покупок'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+ 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         """Скачивание ингредиентов из списка покупок"""
