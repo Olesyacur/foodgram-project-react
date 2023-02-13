@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models import F, Q, UniqueConstraint, CheckConstraint
 
 
 class User(AbstractUser):
@@ -56,16 +57,23 @@ class Follow(models.Model):
         verbose_name='Автор',
     )
     
+    def __str__(self):
+        return f'Подписчик: {self.user}, Автор: {self.author}'
+
+
     class Meta:
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
         ordering = ['user']
         constraints = [
-            models.UniqueConstraint(
+            UniqueConstraint(
                 fields=['user', 'author'],
                 name='unique_follow'
+            ),
+            CheckConstraint(
+                check=~Q(user=F('author')),
+                name='no_self_follow'
             )
         ]
 
-    #def __str__(self):
-      #  return f'{self.user} подписан на {self.author}'
+    

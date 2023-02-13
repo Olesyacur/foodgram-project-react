@@ -2,8 +2,10 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers, status
 from users.models import Follow, User
 from recipes.models import Recipe, Ingredient, Tag, Favorite, ShoppingCart, RecipeIngredient
+from rest_framework.validators import UniqueTogetherValidator
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework.exceptions import ValidationError
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -11,7 +13,14 @@ class UserCreateSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         model = User
-        fields = ('email', 'username', 'password', 'first_name', 'last_name')
+        fields = (
+            'id',
+            'email',
+            'username',
+            'password',
+            'first_name',
+            'last_name'
+        )
 
 
 class UserSerializer(UserSerializer):
@@ -21,7 +30,14 @@ class UserSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
         model = User
-        fields = ('email', 'id', 'username', 'first_name', 'last_name', 'is_subscribed')
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed'
+        )
     
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
@@ -41,6 +57,7 @@ class FollowSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
+    # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = Follow
@@ -52,8 +69,38 @@ class FollowSerializer(serializers.ModelSerializer):
             'last_name',
             'recipes_count',
             'recipes',
-            'is_subscribed')
+            'is_subscribed',
+        )
+        fields = '__all__'
+        # validators = [
+        #     UniqueTogetherValidator(
+        #         queryset=Follow.objects.all(),
+        #         fields=['user', 'author'],
+        #         message='Вы уже подписаны на этого автора'
+        #     ),
+            # CheckValidator(
+            #     check=lambda obj: obj.user != obj.author,
+            #     message='Нельзя подписаться на самого себя',
+            # )
+        # ]
     
+    # def validate(self, data):
+    #     author_id = self.context.get(
+    #         'request').parser_context.get('kwargs').get('id')
+    #     author = get_object_or_404(User, id=author_id)
+    #     user = self.context.get('request').user
+    #     if user.follower.filter(author=author_id).exists():
+    #         raise ValidationError(
+    #             detail='Вы уже подписаны на этого автора',
+    #             code=status.HTTP_400_BAD_REQUEST,
+    #         )
+    #     if user == author:
+    #         raise ValidationError(
+    #             detail='Нельзя подписаться на самого себя',
+    #             code=status.HTTP_400_BAD_REQUEST,
+    #         )
+    #     return data
+
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
         author = obj.author

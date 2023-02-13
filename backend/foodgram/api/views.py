@@ -58,6 +58,8 @@ class UserViewSet(UserViewSet):
                 subscribtion,
                 context={'request': request},
             )
+            # serializer = FollowSerializer(data=request.data, context={'request': request})
+            # serializer.is_valid(raise_exception=True)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         if request.method == 'DELETE':
