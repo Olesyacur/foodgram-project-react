@@ -4,22 +4,20 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     """Пользователи проекта."""
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ('username', 'first_name', 'last_name', )
     first_name = models.CharField(
         verbose_name='Имя пользователя',
         max_length=150,
-        null=False,
     )
     last_name = models.CharField(
         verbose_name='Фамилия пользователя',
         max_length=150,
-        null=False,
     )
     username = models.CharField(
         verbose_name='Ник пользователя',
         max_length=150,
-        null=False,
         unique=True
     )
     email = models.EmailField(
@@ -30,7 +28,6 @@ class User(AbstractUser):
     password = models.CharField(
         verbose_name='Пароль',
         max_length=128,
-        null=False,
     )
     
     class Meta:
@@ -45,6 +42,7 @@ class User(AbstractUser):
     
 class Follow(models.Model):
     """Подписки на авторов."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

@@ -23,11 +23,12 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return self.name
+        return f'{self.name} в {self.measurement_unit}'
 
 
 class Tag(models.Model):
     """Теги рецептов."""
+
     name = models.CharField(
         verbose_name='Название тега',
         max_length=200,
@@ -58,7 +59,7 @@ class Recipe(models.Model):
     Рецепты пользователей.
 
     Ключевые аргументы:
-    description - описание рецепта
+    text - описание рецепта
     pub_date - дата публикации
     author - привязка к автору рецепта
     name - название рецепта
@@ -109,8 +110,8 @@ class Recipe(models.Model):
         help_text='Выберите теги'
     )
     cooking_time = models.PositiveSmallIntegerField(
-        verbose_name='Время приготовления',
-        help_text='Введите время приготовления'
+        verbose_name='Время приготовления (в минутах)',
+        help_text='Введите время приготовления в минутах'
     )
 
 
@@ -151,11 +152,11 @@ class RecipeIngredient(models.Model):
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
 
-    def __str__(self):
-        return (
-            f'{self.ingredient.name} - {self.ingredient.measurement_unit}'
-            f'- {self.amount}'
-        )
+    # def __str__(self):
+    #     return (
+    #         f'{self.ingredient.name} - {self.ingredient.measurement_unit}'
+    #         f'- {self.amount}'
+    #     )
 
 class Favorite(models.Model):
     """Избранное."""
@@ -172,7 +173,7 @@ class Favorite(models.Model):
 
     class Meta:
         ordering = ('user',)
-        verbose_name = 'Избранное'
+        verbose_name = 'Избранный'
         verbose_name_plural = 'Избранные'
 
     def __str__(self):
@@ -194,8 +195,8 @@ class ShoppingCart(models.Model):
 
     class Meta:
         ordering = ('user',)
-        verbose_name = 'Список покупок'
-        verbose_name_plural = 'Списки покупок'
+        verbose_name = 'Включенный в список покупок'
+        verbose_name_plural = 'Список покупок'
 
     def __str__(self):
         return f'{self.user} - {self.recipe}'

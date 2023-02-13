@@ -27,19 +27,21 @@ from .pagination import Pagination
 
 
 class UserViewSet(UserViewSet):
-    """Создание и получение данных пользователя"""
+    """Создание и получение данных пользователя."""
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = Pagination
  
     @action(
         detail=True,
-        methods=['post', 'delete'],
+        methods=('post', 'delete'),
         permission_classes=[IsAuthenticated],
         serializer_class=FollowSerializer,
     )
     def subscribe(self, request, **kwargs):
-        """Подписка на автора"""
+        """Подписка на автора."""
+
         author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)
         user = self.request.user
@@ -65,7 +67,8 @@ class UserViewSet(UserViewSet):
 
     @action(detail=False, permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        """Получение списка подписок"""
+        """Получение списка подписок."""
+
         user = request.user
         queryset = Follow.objects.filter(user=user)
         pages = self.paginate_queryset(queryset)
@@ -76,7 +79,8 @@ class UserViewSet(UserViewSet):
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
-    """Получение списка ингредиентов"""
+    """Получение списка ингредиентов."""
+
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = (IngredientFilter,)
@@ -86,7 +90,8 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Получение списка тегов"""
+    """Получение списка тегов."""
+
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -94,7 +99,8 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Все действия с рецептами"""
+    """Все действия с рецептами."""
+
     queryset = Recipe.objects.all()
     #permission_classes = (IsAuthor,)
     filter_backends = (DjangoFilterBackend,)
@@ -105,7 +111,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if self.action in [
             'favorite'
         ]:
-            self.permission_classes = [IsAuthorOrAdminOrReadOnly]
+            self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
         return super().get_permissions()
 
     def get_serializer_class(self):
@@ -113,9 +119,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
     
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=('post', 'delete'), permission_classes=[IsAuthenticated])
     def favorite(self, request, **kwargs):
-        """Добавление рецепта в избранное или удаление из избранного"""
+        """Добавление рецепта в избранное или удаление из избранного."""
+
         recipe = get_object_or_404(Recipe, pk=self.kwargs.get('pk'))
         data = {
             'recipe': recipe.pk,
@@ -144,9 +151,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
             
-    @action(detail=True, methods=['post', 'delete'], permission_classes=[IsAuthenticated])
+    @action(detail=True, methods=('post', 'delete'), permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
-        """Добавление рецепта в список покупок или удаление из него"""
+        """Добавление рецепта в список покупок или удаление из него."""
+
         recipe = get_object_or_404(Recipe, pk=self.kwargs.get('pk'))
         data = {
             'recipe': recipe.pk,
@@ -174,9 +182,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
  
-    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=('get'), permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
-        """Скачивание ингредиентов из списка покупок"""
+        """Скачивание ингредиентов из списка покупок."""
+
         ingredients = (
             RecipeIngredient.objects
             .filter(recipe__favorite_shops__user=request.user)
