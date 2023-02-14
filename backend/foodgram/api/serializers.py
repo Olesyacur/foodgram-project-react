@@ -210,6 +210,12 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'ingredients': 'Необходимо выбрать ингредиент.'
             })
 
+        ingredients_id = [ingredient['id'] for ingredient in ingredients]
+        if len(ingredients_id) != len(set(ingredients_id)):
+            raise serializers.ValidationError({
+                'ingredients': 'Ингредиенты не должны повторяться.'
+            })
+
         tags = self.initial_data.get('tags')
         if not tags:
             raise serializers.ValidationError({
@@ -233,6 +239,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             RecipeIngredient.objects.create(
                 recipe=recipe, ingredient=ingredient_id, amount=amount
             )
+        
 
     def create_tags(self, tags, recipe):
         """Создание тегов."""

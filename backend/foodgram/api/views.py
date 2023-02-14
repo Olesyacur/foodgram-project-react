@@ -118,7 +118,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = Pagination
-    
+
+    def update(self, request, *args, **kwargs):
+        if kwargs['partial'] == False:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().update(request, *args, **kwargs)
+
     def get_permissions(self):
 
         if self.action in {'create', 'update', 'partial_update', 'destroy'}:
@@ -223,7 +228,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
  
-    @action(detail=False, methods=('GET'), permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=('get', ), permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         """Скачивание ингредиентов из списка покупок."""
 

@@ -63,6 +63,7 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'color', 'slug')
     search_fields = ('name',)
     list_filter = ('name',)
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(Favorite)
