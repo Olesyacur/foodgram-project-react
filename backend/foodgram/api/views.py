@@ -3,6 +3,7 @@ from django.db.models import Sum
 from django.http.response import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from django.db import IntegrityError
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated, SAFE_METHODS
 from rest_framework.decorators import action
 from rest_framework import status, viewsets
@@ -47,20 +48,28 @@ class UserViewSet(UserViewSet):
         author = get_object_or_404(User, id=author_id)
         user = self.request.user
 
-        # if user == author:
-        #     return Response(
-        #         {'message': 'Нельзя подписаться на самого себя'},
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
+        if user == author:
+            return Response(
+                {'message': 'Нельзя подписаться на самого себя'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if request.method == 'POST':
-            subscribtion, _ = Follow.objects.get_or_create(user=user, author=author)
+            # serializer = FollowValidSerializer(author=author, context={'request': request})
+            # serializer.is_valid(raise_exception=True)
+            # subscribtion, _ = Follow.objects.get_or_create(user=user, author=author)
+            try:
+                subscribtion = Follow.objects.create(user=user, author=author)
+            except IntegrityError:
+                return Response(
+                    {'message': 'Вы уже подписаны на этого автора'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             serializer = self.get_serializer(
                 subscribtion,
                 context={'request': request},
             )
-            # serializer = FollowSerializer(data=request.data, context={'request': request})
-            # serializer.is_valid(raise_exception=True)
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         
         if request.method == 'DELETE':
@@ -109,10 +118,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = Pagination
-
+    
     def get_permissions(self):
+
+        if self.action in {'create', 'update', 'partial_update', 'destroy'}:
+            self.permission_classes = (IsAuthenticated, )
+
         if self.action in {
-            'favorite'
+            'favorite',
+            'shopping_cart'
         }:
             self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
         return super().get_permissions()
@@ -126,9 +140,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def favorite(self, request, **kwargs):
         """Добавление рецепта в избранное или удаление из избранного."""
 
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('pk'))
+        try:
+            recipe_id = int(self.kwargs.get('pk'))
+        except ValueError:
+            return Response(
+                {
+                    'message': (
+                        'Рецепт с идентификатором '
+                        f'{self.kwargs.get("pk")} не найден'
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
         data = {
-            'recipe': recipe.pk,
+            'recipe': recipe_id,
             'user': request.user.id,
         }
 
@@ -157,10 +183,22 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=('post', 'delete'), permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, **kwargs):
         """Добавление рецепта в список покупок или удаление из него."""
+        try:
+            recipe_id = int(self.kwargs.get('pk'))
+        except ValueError:
+            return Response(
+                {
+                    'message': (
+                        'Рецепт с идентификатором '
+                        f'{self.kwargs.get("pk")} не найден'
+                    )
+                },
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-        recipe = get_object_or_404(Recipe, pk=self.kwargs.get('pk'))
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
         data = {
-            'recipe': recipe.pk,
+            'recipe': recipe_id,
             'user': request.user.id,
         }
 
@@ -185,7 +223,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
  
-    @action(detail=False, methods=('get'), permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=('GET'), permission_classes=[IsAuthenticated])
     def download_shopping_cart(self, request):
         """Скачивание ингредиентов из списка покупок."""
 

@@ -52,27 +52,6 @@ class UserSerializer(UserSerializer):
             return Follow.objects.filter(user=request.user).exists()
         return False
 
-class FollowValidSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Follow
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=['user', 'author'],
-                message='Вы уже подписаны на этого автора'
-            ),
-        ]
-    
-    def validate(self, data):
-        author_id = self.context.get(
-            'request').parser_context.get('kwargs').get('id')
-        author = get_object_or_404(User, id=author_id)
-        user = self.context.get('request').user
-        
-        if user == author:
-            raise serializers.ValidationError('Нельзя подписаться на самого себя')
-        return data
 
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор для подписок."""
@@ -99,35 +78,6 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes',
             'is_subscribed',
         )
-        #fields = '__all__'
-        # validators = [
-        #     UniqueTogetherValidator(
-        #         queryset=Follow.objects.all(),
-        #         fields=['user', 'author'],
-        #         message='Вы уже подписаны на этого автора'
-            # ),
-            # CheckValidator(
-            #     check=lambda obj: obj.user != obj.author,
-            #     message='Нельзя подписаться на самого себя',
-            # )
-        # ]
-    
-    # def validate(self, data):
-    #     author_id = self.context.get(
-    #         'request').parser_context.get('kwargs').get('id')
-    #     author = get_object_or_404(User, id=author_id)
-    #     user = self.context.get('request').user
-    #     if user.follower.filter(author=author_id).exists():
-    #         raise ValidationError(
-    #             detail='Вы уже подписаны на этого автора',
-    #             code=status.HTTP_400_BAD_REQUEST,
-    #         )
-    #     if user == author:
-    #         raise ValidationError(
-    #             detail='Нельзя подписаться на самого себя',
-    #             code=status.HTTP_400_BAD_REQUEST,
-    #         )
-    #     return data
 
     def get_is_subscribed(self, obj):
         user = self.context.get('request').user
