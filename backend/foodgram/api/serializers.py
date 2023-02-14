@@ -21,8 +21,15 @@ class UserCreateSerializer(UserCreateSerializer):
             'first_name',
             'last_name'
         )
-
-
+        extra_kwargs = {
+            'password': {'write_only': True},
+        }
+     
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError('Недопустимое имя пользователя')
+        return value
+        
 class UserSerializer(UserSerializer):
     """Сериализатор для получения данных пользователя."""
 
@@ -41,10 +48,31 @@ class UserSerializer(UserSerializer):
     
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=request.user).exists()
+        if (request and not request.user.is_anonymous):
+            return Follow.objects.filter(user=request.user).exists()
+        return False
 
+class FollowValidSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=['user', 'author'],
+                message='Вы уже подписаны на этого автора'
+            ),
+        ]
+    
+    def validate(self, data):
+        author_id = self.context.get(
+            'request').parser_context.get('kwargs').get('id')
+        author = get_object_or_404(User, id=author_id)
+        user = self.context.get('request').user
+        
+        if user == author:
+            raise serializers.ValidationError('Нельзя подписаться на самого себя')
+        return data
 
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор для подписок."""
@@ -71,13 +99,13 @@ class FollowSerializer(serializers.ModelSerializer):
             'recipes',
             'is_subscribed',
         )
-        fields = '__all__'
+        #fields = '__all__'
         # validators = [
         #     UniqueTogetherValidator(
         #         queryset=Follow.objects.all(),
         #         fields=['user', 'author'],
         #         message='Вы уже подписаны на этого автора'
-        #     ),
+            # ),
             # CheckValidator(
             #     check=lambda obj: obj.user != obj.author,
             #     message='Нельзя подписаться на самого себя',

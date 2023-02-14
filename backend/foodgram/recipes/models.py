@@ -68,6 +68,7 @@ class Recipe(models.Model):
     tags - привязка к тегам
     ingredients - привязка к ингредиентам
     """
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -126,6 +127,7 @@ class Recipe(models.Model):
 
 class RecipeIngredient(models.Model):
     """Ингредиенты рецепта."""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
@@ -148,18 +150,17 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Ингредиент рецепта'
         verbose_name_plural = 'Ингредиенты рецепта'
 
-    # def __str__(self):
-    #     return (
-    #         f'{self.ingredient.name} - {self.ingredient.measurement_unit}'
-    #         f'- {self.amount}'
-    #     )
+    def __str__(self):
+        return (
+            f'{self.ingredient} - {self.amount}'
+        )
 
 class Favorite(models.Model):
     """Избранное."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -182,6 +183,7 @@ class Favorite(models.Model):
 
 class ShoppingCart(models.Model):
     """Список покупок."""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,

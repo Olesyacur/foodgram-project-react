@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 admin.site.unregister(Group)
 
 
-class RecipeIngredientAdmin(admin.TabularInline):
+class RecipeInIngredientAdmin(admin.TabularInline):
     model = RecipeIngredient
     fields = ('ingredient', 'amount')
     min_num = 1
@@ -16,7 +16,7 @@ class RecipeIngredientAdmin(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-       'author',
+       'get_author',
        'name',
        'text',
        'get_ingredients',
@@ -24,8 +24,18 @@ class RecipeAdmin(admin.ModelAdmin):
        'cooking_time',
        'count_favorite',)
     list_filter = ('name', 'author', 'tags',)
-    search_fields = ('name',)
-    inlines = (RecipeIngredientAdmin,)
+    search_fields = (
+        'name',
+        'author__email',
+        'tags__name',
+        'ingredients__name',)
+    inlines = (RecipeInIngredientAdmin,)
+    #prepopulated_fields = {"slug": ("title",)}
+    readonly_fields = ('count_favorite',)
+
+    @admin.display(description='Автор')
+    def get_author(self, obj):
+        return obj.author.username
 
     @admin.display(description='Теги')
     def get_tags(self, obj):

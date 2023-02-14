@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.mixins import UpdateModelMixin
 from users.models import Follow, User
 from recipes.models import Recipe, Ingredient, Tag, Favorite, ShoppingCart, RecipeIngredient
 
@@ -45,12 +46,12 @@ class UserViewSet(UserViewSet):
         author_id = self.kwargs.get('id')
         author = get_object_or_404(User, id=author_id)
         user = self.request.user
-        
-        if user == author:
-            return Response(
-                {'message': 'Нельзя подписаться на самого себя'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+
+        # if user == author:
+        #     return Response(
+        #         {'message': 'Нельзя подписаться на самого себя'},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
 
         if request.method == 'POST':
             subscribtion, _ = Follow.objects.get_or_create(user=user, author=author)
@@ -110,9 +111,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = Pagination
 
     def get_permissions(self):
-        if self.action in [
+        if self.action in {
             'favorite'
-        ]:
+        }:
             self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
         return super().get_permissions()
 
