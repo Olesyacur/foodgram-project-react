@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
+from django.db import models
 
 User = get_user_model()
 
@@ -115,7 +115,6 @@ class Recipe(models.Model):
         help_text='Введите время приготовления в минутах'
     )
 
-
     class Meta:
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
@@ -159,11 +158,11 @@ class RecipeIngredient(models.Model):
             )
         ]
 
-
     def __str__(self):
         return (
             f'{self.ingredient} - {self.amount}'
         )
+
 
 class Favorite(models.Model):
     """Избранное."""
@@ -189,7 +188,7 @@ class Favorite(models.Model):
                 name='unique_favorite'
             )
         ]
-        
+
     def __str__(self):
         return f'{self.user} - {self.recipe}'
 

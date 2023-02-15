@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.db.models import F, Q, UniqueConstraint, CheckConstraint
+from django.db import models
+from django.db.models import CheckConstraint, F, Q, UniqueConstraint
 
 
 class User(AbstractUser):
@@ -30,17 +30,16 @@ class User(AbstractUser):
         verbose_name='Пароль',
         max_length=128,
     )
-    
+
     class Meta:
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         ordering = ['username']
 
-
     def __str__(self):
         return self.username
 
-    
+
 class Follow(models.Model):
     """Подписки на авторов."""
 
@@ -56,10 +55,9 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор',
     )
-    
+
     def __str__(self):
         return f'Подписчик: {self.user}, Автор: {self.author}'
-
 
     class Meta:
         verbose_name = 'Подписка'
@@ -75,5 +73,3 @@ class Follow(models.Model):
                 name='no_self_follow'
             )
         ]
-
-    

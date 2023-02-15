@@ -1,8 +1,9 @@
 from django.contrib import admin
+from django.contrib.auth.models import Group
 
 # Register your models here.
-from .models import Recipe, Ingredient, Tag, RecipeIngredient, Favorite, ShoppingCart
-from django.contrib.auth.models import Group
+from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                     ShoppingCart, Tag)
 
 admin.site.unregister(Group)
 
@@ -12,17 +13,18 @@ class RecipeInIngredientAdmin(admin.TabularInline):
     fields = ('ingredient', 'amount')
     min_num = 1
     extra = 0
-    
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
-       'get_author',
-       'name',
-       'text',
-       'get_ingredients',
-       'get_tags',
-       'cooking_time',
-       'count_favorite',)
+        'get_author',
+        'name',
+        'text',
+        'get_ingredients',
+        'get_tags',
+        'cooking_time',
+        'count_favorite',)
     list_filter = ('name', 'author', 'tags',)
     search_fields = (
         'name',
@@ -30,7 +32,6 @@ class RecipeAdmin(admin.ModelAdmin):
         'tags__name',
         'ingredients__name',)
     inlines = (RecipeInIngredientAdmin,)
-    #prepopulated_fields = {"slug": ("title",)}
     readonly_fields = ('count_favorite',)
 
     @admin.display(description='Автор')
@@ -85,5 +86,3 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     list_display = ('recipe', 'ingredient', 'amount')
     search_fields = ('recipe', 'ingredient')
     list_filter = ('recipe', 'ingredient')
-
-
