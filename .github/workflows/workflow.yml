@@ -40,7 +40,7 @@ jobs:
       - name: Push to Docker Hub
         uses: docker/build-push-action@v2 
         with:
-          context: backend/foodgram
+          context: backend/
           push: true
           tags: olesyachu/foodgram:latest
 
