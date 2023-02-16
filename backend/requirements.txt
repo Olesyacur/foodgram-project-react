@@ -17,3 +17,4 @@ django-filter
 django-extra-fields
 Pillow
 django-cleanup
+gunicorn == 20.1.0
