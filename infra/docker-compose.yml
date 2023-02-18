@@ -18,12 +18,12 @@ services:
       - static_value:/app/static_backend/
       - media_value:/app/media/
 
-  # frontend:
-  #   build:
-  #     context: ../frontend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ../frontend/:/app/result_build/
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/:/app/result_build/
 
   nginx:
     image: nginx:1.19.3
