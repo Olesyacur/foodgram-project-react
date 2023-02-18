@@ -54,7 +54,8 @@ jobs:
         with: 
           host: ${{ secrets.HOST }} 
           username: ${{ secrets.USER }} 
-          key: ${{ secrets.SSH_KEY }} 
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           source: "infra/docker-compose.yml" 
           target: "." 
           strip_components: 1 
@@ -69,7 +70,8 @@ jobs:
         with: 
           host: ${{ secrets.HOST }} 
           username: ${{ secrets.USER }} 
-          key: ${{ secrets.SSH_KEY }} 
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
           source: "infra/nginx.conf" 
           target: "nginx" 
           strip_components: 1
