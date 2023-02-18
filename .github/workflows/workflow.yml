@@ -44,6 +44,36 @@ jobs:
           push: true
           tags: olesyachu/foodgram:latest
 
+  copy_compose: 
+    name: Copy compose 
+    runs-on: ubuntu-latest 
+    steps: 
+      - uses: actions/checkout@master 
+      - name: copy file via ssh password 
+        uses: appleboy/scp-action@master 
+        with: 
+          host: ${{ secrets.HOST }} 
+          username: ${{ secrets.USER }} 
+          key: ${{ secrets.SSH_KEY }} 
+          source: "infra/docker-compose.yaml" 
+          target: "." 
+          strip_components: 1 
+
+  copy_nginx_conf: 
+    name: Copy nginx config 
+    runs-on: ubuntu-latest 
+    steps: 
+      - uses: actions/checkout@master 
+      - name: copy file via ssh password 
+        uses: appleboy/scp-action@master 
+        with: 
+          host: ${{ secrets.HOST }} 
+          username: ${{ secrets.USER }} 
+          key: ${{ secrets.SSH_KEY }} 
+          source: "infra/nginx.conf" 
+          target: "nginx" 
+          strip_components: 1
+
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
