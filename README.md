@@ -9,6 +9,7 @@
 - Оформляем подписки на других авторов рецептов
 - Сохраняем любимые рецепты в избранном
 - Формируем список покупок для выбранных рецептов
+- Можно выбирать рецепты на основании тегов, таких как: Завтрак, Обед, Ужин.
 
 ### Используемые технологии
 
@@ -112,6 +113,34 @@ ssh username@server_address
 
 ### Примеры запросов и результат
 ```
+GET http://127.0.0.1:8000/api/recipes/
+{
+"count": 123,
+"next": "http://foodgram.example.org/api/recipes/?page=4",
+"previous": "http://foodgram.example.org/api/recipes/?page=2",
+"results": [
+{
+"id": 0,
+"tags": [],
+"author": {},
+"ingredients": [],
+"is_favorited": true,
+"is_in_shopping_cart": true,
+"name": "string",
+"image": "http://foodgram.example.org/media/recipes/images/image.jpeg",
+"text": "string",
+"cooking_time": 1
+}
+]
+}
 
-### Авторы
-Студенты Я.Практикум - _Олеся Чурсина,_ _Денис Костив,_ _Юлия Орлова_
+POST http://127.0.0.1:8000/api/recipes/{id}/favorite/
+{
+"id": 0,
+"name": "string",
+"image": "http://foodgram.example.org/media/recipes/images/image.jpeg",
+"cooking_time": 1
+}
+
+### Автор
+Студент Я.Практикум - _Олеся Чурсина_
