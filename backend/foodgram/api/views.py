@@ -20,7 +20,7 @@ from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (FavoriteSerializer, FollowSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
-                          TagSerializer, UserSerializer,RecipeFieldSerializer)
+                          TagSerializer, UserSerializer, )
 
 
 class UserViewSet(UserViewSet):
@@ -39,7 +39,7 @@ class UserViewSet(UserViewSet):
     def subscribe(self, request, **kwargs):
         """Подписка на автора."""
 
-        author_id = self.kwargs.get('id')
+        #author_id = self.kwargs.get('id')
         author = self.get_object()
         user = self.request.user
 
