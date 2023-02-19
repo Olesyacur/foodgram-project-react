@@ -1,4 +1,5 @@
 # **FOODGRAM**
+[![foodgram-project-react workflow](https://github.com/Olesyacur/foodgram-project-react/actions/workflows/workflow.yml/badge.svg)](https://github.com/Olesyacur/foodgram-project-react/actions/workflows/workflow.yml)
 ### Продуктовый помощник с базой кулинарных рецептов.
  Позволяет публиковать рецепты, сохранять избранные, а также формировать список покупок для выбранных рецептов. Можно подписываться на любимых авторов.
 
