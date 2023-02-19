@@ -39,7 +39,6 @@ class UserViewSet(UserViewSet):
     def subscribe(self, request, **kwargs):
         """Подписка на автора."""
 
-        #author_id = self.kwargs.get('id')
         author = self.get_object()
         user = self.request.user
 
