@@ -110,6 +110,7 @@ ssh username@server_address
 Остановка и удаление контейнеров, томов, образов
 ```docker-compose down -v```
 
+
 ### Примеры запросов и результат
 ```
 GET http://127.0.0.1:8000/api/recipes/

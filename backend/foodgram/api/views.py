@@ -20,7 +20,7 @@ from .permissions import IsAuthorOrAdminOrReadOnly
 from .serializers import (FavoriteSerializer, FollowSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
-                          TagSerializer, UserSerializer)
+                          TagSerializer, UserSerializer,RecipeFieldSerializer)
 
 
 class UserViewSet(UserViewSet):
@@ -40,7 +40,7 @@ class UserViewSet(UserViewSet):
         """Подписка на автора."""
 
         author_id = self.kwargs.get('id')
-        author = get_object_or_404(User, id=author_id)
+        author = self.get_object()
         user = self.request.user
 
         if user == author:
@@ -153,7 +153,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
-        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        recipe = self.get_object()
         data = {
             'recipe': recipe_id,
             'user': request.user.id,
