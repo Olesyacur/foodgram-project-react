@@ -118,6 +118,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     #     methods=('post', 'delete'),
     #     permission_classes=(IsAuthenticated, )
     # )
+
     def update(self, request, *args, **kwargs):
         if kwargs['partial'] is False:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
