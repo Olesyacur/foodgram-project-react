@@ -17,6 +17,7 @@ class RecipeInIngredientAdmin(admin.TabularInline):
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     list_display = (
+        'id',
         'get_author',
         'name',
         'text',
@@ -32,6 +33,11 @@ class RecipeAdmin(admin.ModelAdmin):
         'ingredients__name',)
     inlines = (RecipeInIngredientAdmin,)
     readonly_fields = ('count_favorite',)
+    empty_value_display = '-пусто-'
+
+    @admin.display(description='id')
+    def get_id(self, obj):
+        return obj.id.username
 
     @admin.display(description='Автор')
     def get_author(self, obj):
