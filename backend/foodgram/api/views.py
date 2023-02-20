@@ -33,12 +33,11 @@ class UserViewSet(UserViewSet):
     @action(
         detail=True,
         methods=('post', 'delete'),
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated, ),
         serializer_class=FollowSerializer,
     )
     def subscribe(self, request, **kwargs):
         """Подписка на автора."""
-
         author = self.get_object()
         user = self.request.user
 
@@ -69,10 +68,9 @@ class UserViewSet(UserViewSet):
 
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, permission_classes=[IsAuthenticated])
+    @action(detail=False, permission_classes=(IsAuthenticated, ))
     def subscriptions(self, request):
         """Получение списка подписок."""
-
         user = request.user
         queryset = Follow.objects.filter(user=user)
         pages = self.paginate_queryset(queryset)
@@ -116,7 +114,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)
 
     def get_permissions(self):
-
         if self.action in {'create', 'update', 'partial_update', 'destroy'}:
             self.permission_classes = (IsAuthenticated, )
 
@@ -135,11 +132,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=('post', 'delete'),
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated, )
     )
     def favorite(self, request, **kwargs):
         """Добавление рецепта в избранное или удаление из избранного."""
-
         try:
             recipe_id = int(self.kwargs.get('pk'))
         except ValueError:
@@ -184,7 +180,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=('post', 'delete'),
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated, )
     )
     def shopping_cart(self, request, **kwargs):
         """Добавление рецепта в список покупок или удаление из него."""
@@ -232,11 +228,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=('get', ),
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated, )
     )
     def download_shopping_cart(self, request):
         """Скачивание ингредиентов из списка покупок."""
-
         ingredients = (
             RecipeIngredient.objects
             .filter(recipe__favorite_shops__user=request.user)

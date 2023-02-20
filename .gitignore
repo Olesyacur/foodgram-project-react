@@ -111,7 +111,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-
+# .vscode/
+# launch.json
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -132,3 +133,6 @@ dmypy.json
 
 # .idea
 .idea
+
+# media/
+# /backend/static/
