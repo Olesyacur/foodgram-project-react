@@ -16,7 +16,7 @@ from users.models import Follow, User
 
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import Pagination
-from .permissions import IsAuthorOrAdminOrReadOnly
+from .permissions import IsAuthorOrAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import (FavoriteSerializer, FollowSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
@@ -107,12 +107,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
     pagination_class = Pagination
+    permission_classes = (IsAuthorOrReadOnly,)
 
-    def get_permissions(self):
-        if self.action in {'get', 'update', 'partial_update', 'destroy'}:
-            self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
-        if self.action in {'create'}:
-            self.permission_classes = (IsAuthenticated, )
+    # def get_permissions(self):
+    #     if self.action in {'get', 'update', 'partial_update', 'destroy'}:
+    #         self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
+    #     if self.action in {'create'}:
+    #         self.permission_classes = (IsAuthenticated, )
     # @action(
     #     detail=True,
     #     methods=('post', 'delete'),
