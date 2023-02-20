@@ -109,7 +109,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     pagination_class = Pagination
 
     def get_permissions(self):
-        if self.action in {'update', 'partial_update', 'destroy'}:
+        if self.action in {'get', 'update', 'partial_update', 'destroy'}:
             self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
         if self.action in {'create'}:
             self.permission_classes = (IsAuthenticated, )
