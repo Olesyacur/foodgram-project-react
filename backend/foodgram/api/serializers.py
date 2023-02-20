@@ -91,7 +91,7 @@ class FollowSerializer(serializers.ModelSerializer):
         limit = request.GET.get('recipes_limit')
         if limit:
             recipes = recipes[:int(limit)]
-        return RecipeSerializer(
+        return RecipeFieldSerializer(
             recipes,
             many=True,
             context={'request': request}
