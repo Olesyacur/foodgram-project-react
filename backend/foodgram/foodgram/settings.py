@@ -147,7 +147,7 @@ USE_TZ = True
 STATIC_URL = '/static_backend/'
 if DEBUG:
     STATICFILES_DIRS = [
-        #os.path.join(BASE_DIR, 'static/')
+        # os.path.join(BASE_DIR, 'static/')
         os.path.join(BASE_DIR, 'static_backend'),
     ]
 else:
