@@ -108,21 +108,27 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     pagination_class = Pagination
 
+    def get_permissions(self):
+        if self.action in {'update', 'partial_update', 'destroy'}:
+            self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
+        if self.action in {'create'}:
+            self.permission_classes = (IsAuthenticated, )
+    # @action(
+    #     detail=True,
+    #     methods=('post', 'delete'),
+    #     permission_classes=(IsAuthenticated, )
+    # )
     def update(self, request, *args, **kwargs):
         if kwargs['partial'] is False:
             return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().update(request, *args, **kwargs)
 
-    def get_permissions(self):
-        if self.action in {'create', 'update', 'partial_update', 'destroy'}:
-            self.permission_classes = (IsAuthenticated, )
-
-        if self.action in {
-            'favorite',
-            'shopping_cart'
-        }:
-            self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
-        return super().get_permissions()
+    #     if self.action in {
+    #         'favorite',
+    #         'shopping_cart'
+    #     }:
+    #         self.permission_classes = (IsAuthorOrAdminOrReadOnly, )
+    #     return super().get_permissions()
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
