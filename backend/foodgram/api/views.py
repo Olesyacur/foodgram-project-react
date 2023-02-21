@@ -20,7 +20,7 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavoriteSerializer, FollowSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
                           RecipeSerializer, ShoppingCartSerializer,
-                          TagSerializer, UserSerializer, )
+                          TagSerializer, UserSerializer, RecipeFieldSerializer)
 
 
 class UserViewSet(UserViewSet):
@@ -119,6 +119,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
 
+    def add_to(self, model, user, pk): 
+        if model.objects.filter(user=user, recipe__id=pk).exists(): 
+            return Response({'errors': 'Рецепт уже добавлен!'}, 
+                            status=status.HTTP_400_BAD_REQUEST) 
+        recipe = get_object_or_404(Recipe, id=pk) 
+        model.objects.create(user=user, recipe=recipe) 
+        serializer = RecipeFieldSerializer(recipe) 
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete_from(self, model, user, pk): 
+        obj = model.objects.filter(user=user, recipe__id=pk) 
+        if obj.exists(): 
+            obj.delete() 
+            return Response(status=status.HTTP_204_NO_CONTENT) 
+        return Response({'errors': 'Рецепт уже удален!'}, 
+                    status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
     @action(
         detail=True,
         methods=('post', 'delete'),
@@ -138,34 +155,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_404_NOT_FOUND
             )
-        recipe = self.get_object()
-        data = {
-            'recipe': recipe_id,
-            'user': request.user.id,
-        }
 
         if request.method == 'POST':
-            serializer = FavoriteSerializer(
-                data=data,
-                context={'request': request},)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED)
+            return self.add_to(Favorite, request.user, pk=recipe_id)
 
         if request.method == 'DELETE':
-            obj = Favorite.objects.filter(user=request.user, recipe=recipe)
-            if obj.exists():
-                obj.delete()
-                return Response(
-                    status=status.HTTP_204_NO_CONTENT
-                )
-            return Response(
-                {'message': 'Рецепт не найден в избранном'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return self.delete_from(Favorite, request.user, recipe_id)
 
     @action(
         detail=True,
@@ -187,33 +182,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        recipe = get_object_or_404(Recipe, pk=recipe_id)
-        data = {
-            'recipe': recipe_id,
-            'user': request.user.id,
-        }
-
         if request.method == 'POST':
-            serializer = ShoppingCartSerializer(
-                data=data,
-                context={'request': request},)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return self.add_to(ShoppingCart, request.user, pk=recipe_id)
 
         if request.method == 'DELETE':
-            obj = ShoppingCart.objects.filter(user=request.user, recipe=recipe)
-            if obj.exists():
-                obj.delete()
-                return Response(
-                    status=status.HTTP_204_NO_CONTENT
-                )
-            return Response(
-                {'message': 'Рецепт не найден в списке покупок'},
-                status=status.HTTP_404_NOT_FOUND
-            )
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return self.delete_from(ShoppingCart, request.user, recipe_id)
 
     @action(
         detail=False,
