@@ -7,7 +7,7 @@ from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
 from users.models import Follow, User
 
 
-class UserCreateSerializer(UserCreateSerializer):
+class UserCustomCreateSerializer(UserCreateSerializer):
     """Сериализатор для создания пользователя."""
 
     class Meta(UserCreateSerializer.Meta):
@@ -30,7 +30,7 @@ class UserCreateSerializer(UserCreateSerializer):
         return value
 
 
-class UserSerializer(UserSerializer):
+class UserCustomSerializer(UserSerializer):
     """Сериализатор для получения данных пользователя."""
 
     is_subscribed = serializers.SerializerMethodField(read_only=True)
@@ -313,17 +313,6 @@ class FavoriteSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = ('user', 'recipe')
 
-    def validate(self, data):
-        """Проверка наличия рецепта в избранном."""
-        if Favorite.objects.filter(
-            user=data['user'],
-            recipe=data['recipe']
-        ).exists():
-            raise serializers.ValidationError(
-                detail='Рецепт уже добавлен в избранное',
-            )
-        return data
-
     def to_representation(self, instance):
         """Получение избранного."""
         return RecipeFieldSerializer(
@@ -338,19 +327,6 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('user', 'recipe')
-
-    def validate(self, data):
-        """Проверка наличия рецепта в списке покупок."""
-        request = self.context.get('request')
-        recipe = data['recipe']
-        if ShoppingCart.objects.filter(
-            user=request.user,
-            recipe=recipe
-        ).exists():
-            raise serializers.ValidationError(
-                detail='Рецепт уже добавлен в список покупок',
-            )
-        return data
 
     def to_representation(self, instance):
         """Получение списка покупок."""
