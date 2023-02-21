@@ -17,10 +17,9 @@ from users.models import Follow, User
 from .filters import IngredientFilter, RecipeFilter
 from .pagination import Pagination
 from .permissions import IsAuthorOrReadOnly
-from .serializers import (FavoriteSerializer, FollowSerializer,
+from .serializers import (FollowSerializer,
                           IngredientSerializer, RecipeCreateSerializer,
-                          RecipeSerializer, ShoppingCartSerializer,
-                          TagSerializer, UserSerializer, RecipeFieldSerializer)
+                          RecipeSerializer,                          TagSerializer, UserSerializer, RecipeFieldSerializer)
 
 
 class UserViewSet(UserViewSet):
@@ -119,22 +118,24 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeSerializer
         return RecipeCreateSerializer
 
-    def add_to(self, model, user, pk): 
-        if model.objects.filter(user=user, recipe__id=pk).exists(): 
-            return Response({'errors': 'Рецепт уже добавлен!'}, 
-                            status=status.HTTP_400_BAD_REQUEST) 
-        recipe = get_object_or_404(Recipe, id=pk) 
-        model.objects.create(user=user, recipe=recipe) 
-        serializer = RecipeFieldSerializer(recipe) 
+    def add_to(self, model, user, pk):
+        if model.objects.filter(user=user, recipe__id=pk).exists():
+            return Response({'errors': 'Рецепт уже добавлен!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipe, id=pk)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = RecipeFieldSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_from(self, model, user, pk): 
-        obj = model.objects.filter(user=user, recipe__id=pk) 
-        if obj.exists(): 
-            obj.delete() 
-            return Response(status=status.HTTP_204_NO_CONTENT) 
-        return Response({'errors': 'Рецепт уже удален!'}, 
-                    status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    def delete_from(self, model, user, pk):
+        obj = model.objects.filter(user=user, recipe__id=pk)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {'errors': 'Рецепт уже удален!'},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
     @action(
         detail=True,
@@ -161,6 +162,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             return self.delete_from(Favorite, request.user, recipe_id)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
@@ -187,6 +189,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             return self.delete_from(ShoppingCart, request.user, recipe_id)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=False,
