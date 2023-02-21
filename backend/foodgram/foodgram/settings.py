@@ -14,7 +14,6 @@ SECRET_KEY = 'django-insecure-c!r=234j5a)2jjcxf8vvd*&oaiq6#6r^w2^=e*lj-+v)y6gd(l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['51.250.14.59']
 
 AUTH_USER_MODEL = 'users.User'
@@ -82,12 +81,6 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT', default=5432)
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -148,7 +141,6 @@ USE_TZ = True
 STATIC_URL = '/static_backend/'
 if DEBUG:
     STATICFILES_DIRS = [
-        # os.path.join(BASE_DIR, 'static/')
         os.path.join(BASE_DIR, 'static_backend'),
     ]
 else:
