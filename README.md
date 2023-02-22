@@ -51,9 +51,10 @@ server_address - IP-адрес сервера или доменное имя.
 #### Редактируем файл infra/nginx.conf на локальном компьютере:
  в строке server_name вписать IP-адрес сервера
 
-#### Копируем файлы docker-compose.yaml и nginx/default.conf из директории infra на сервер:
+#### Копируем файлы на сервер docker-compose.yaml, файл nginx.conf из директории infra в папку nginx и папку docs с содержимым в одноименную папку:
  ```scp docker-compose.yaml <username>@<host>:/home/<username>/docker-compose.yaml```
 ```scp nginx <username>@<host>:/home/<username>/nginx```
+```scp docs <username>@<host>:/home/<username>/docs```
 #### Добавляем переменные окружения в Secrets GitHub для работы с .env:
 -DB_ENGINE=django.db.backends.postgresql
 -DB_NAME= postgres
