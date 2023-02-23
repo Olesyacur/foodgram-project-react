@@ -35,10 +35,6 @@ class RecipeAdmin(admin.ModelAdmin):
     readonly_fields = ('count_favorite',)
     empty_value_display = '-пусто-'
 
-    @admin.display(description='id')
-    def get_id(self, obj):
-        return obj.id.username
-
     @admin.display(description='Автор')
     def get_author(self, obj):
         return obj.author.username
