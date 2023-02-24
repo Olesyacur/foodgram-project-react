@@ -52,15 +52,6 @@ class UserCustomSerializer(UserSerializer):
             return False
         return Follow.objects.filter(
             user=user, author=obj).exists()
-    # def get_is_subscribed(self, obj):
-    #     request = self.context.get('request')
-    #     if (request and not request.user.is_anonymous):
-    #         return Follow.objects.filter(
-    #             user=request.user,
-    #             author=obj
-    #         ).exists()
-    #     return False
-
 
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор для подписок."""
@@ -210,7 +201,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientFieldSerializer(many=True)
-    author = UserSerializer(read_only=True)
+    author = UserCustomSerializer(read_only=True)
     image = Base64ImageField()
 
     class Meta:
@@ -234,7 +225,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'ingredients': 'Ингредиенты не должны повторяться.'
             })
 
-        tags = self.initial_data.get('tags')
+        tags = data
         if not tags:
             raise serializers.ValidationError({
                 'tags': 'Необходимо выбрать тег.'

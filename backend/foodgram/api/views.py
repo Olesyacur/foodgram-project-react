@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from django.db.models import Sum
+from django.db.models import Sum, F
 from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,7 +23,7 @@ from .serializers import (
     RecipeCreateSerializer,
     RecipeSerializer,
     TagSerializer,
-    UserSerializer,
+    UserCustomSerializer,
     RecipeFieldSerializer,
 )
 
@@ -32,7 +32,7 @@ class UserCustomViewSet(UserViewSet):
     """Создание и получение данных пользователя."""
 
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserCustomSerializer
     pagination_class = Pagination
 
     @action(
@@ -71,7 +71,10 @@ class UserCustomViewSet(UserViewSet):
             get_object_or_404(Follow, user=user, author=author).delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Вы не подписаны на этого пользователя'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @action(detail=False, permission_classes=(IsAuthenticated, ))
     def subscriptions(self, request):
@@ -208,7 +211,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             RecipeIngredient.objects
             .filter(recipe__favorite_shops__user=request.user)
             .values('ingredient__name', 'ingredient__measurement_unit')
-            .annotate(amount=Sum('amount'))
+            .annotate(amount=Sum(F('amount')))
             .order_by()
         )
         shop_list = []
