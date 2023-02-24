@@ -53,6 +53,7 @@ class UserCustomSerializer(UserSerializer):
         return Follow.objects.filter(
             user=user, author=obj).exists()
 
+
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор для подписок."""
 
