@@ -28,7 +28,7 @@ from .serializers import (
 )
 
 
-class UserViewSet(UserViewSet):
+class UserCustomViewSet(UserViewSet):
     """Создание и получение данных пользователя."""
 
     queryset = User.objects.all()
@@ -140,7 +140,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(
             {'errors': 'Рецепт уже был удален.'},
-            status=status.HTTP_405_METHOD_NOT_ALLOWED
+            status=status.HTTP_404_NOT_FOUND
         )
 
     @action(
@@ -168,7 +168,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             return self.delete_from(Favorite, request.user, recipe_id)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         detail=True,
@@ -195,7 +195,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
         if request.method == 'DELETE':
             return self.delete_from(ShoppingCart, request.user, recipe_id)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         detail=False,
