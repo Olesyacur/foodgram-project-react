@@ -156,8 +156,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     author = UserSerializer(read_only=True, many=False)
     ingredients = serializers.SerializerMethodField()
-    is_favorited = serializers.SerializerMethodField(read_only=True)
-    is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField()
 
     class Meta:
@@ -226,7 +226,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
                 'ingredients': 'Ингредиенты не должны повторяться.'
             })
 
-        tags = data
+        tags = self.initial_data.get('tags')
         if not tags:
             raise serializers.ValidationError({
                 'tags': 'Необходимо выбрать тег.'
